@@ -18,6 +18,14 @@ export default {
     this.styleClose = null
   },
 
+  getOriginalZoomValue() {
+    if (this.el.style.zoom) {
+      const zoomValue = parseFloat(this.el.style.zoom) / 100
+      return zoomValue
+    }
+    return 1
+  },
+
   zoomIn() {
     const {
       zIndex,
@@ -27,6 +35,10 @@ export default {
     } = this.instance.options
     this.translate = this.calculateTranslate()
     this.scale = this.calculateScale()
+
+    const originalZoomValue = this.getOriginalZoomValue()
+    this.scale.x = this.scale.x / originalZoomValue
+    this.scale.y = this.scale.y / originalZoomValue
 
     this.styleOpen = {
       position: 'relative',
@@ -130,15 +142,19 @@ export default {
 
   calculateTranslate() {
     const windowCenter = getWindowCenter()
+    const originalZoomValue = this.getOriginalZoomValue()
     const targetCenter = {
       x: this.rect.left + this.rect.width / 2,
       y: this.rect.top + this.rect.height / 2
     }
 
+    targetCenter.x = targetCenter.x * originalZoomValue
+    targetCenter.y = targetCenter.y * originalZoomValue
+
     // The vector to translate image to the window center
     return {
-      x: windowCenter.x - targetCenter.x,
-      y: windowCenter.y - targetCenter.y
+      x: (windowCenter.x - targetCenter.x) / originalZoomValue,
+      y: (windowCenter.y - targetCenter.y) / originalZoomValue
     }
   },
 
